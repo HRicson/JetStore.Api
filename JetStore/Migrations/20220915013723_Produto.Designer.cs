@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JetStore.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220914232234_Produto")]
+    [Migration("20220915013723_Produto")]
     partial class Produto
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
