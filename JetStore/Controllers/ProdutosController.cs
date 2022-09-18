@@ -32,7 +32,45 @@ namespace JetStore.Controllers
                 {
                     dtoList.Add(new ProdutoDTO()
                     {
-                        Id = produto.Id,
+                        Id = produto.Id.ToString(),
+                        Nome = produto.Nome,
+                        Descricao = produto.Descricao,
+                        Estoque = produto.Estoque,
+                        Status = produto.Status,
+                        Preco = produto.Preco,
+                        ImagemBase64String = Convert.ToBase64String(produto.Imagem),
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    data = dtoList
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("Loja")]
+        public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetProdutosLoja()
+        {
+            try
+            {
+                List<ProdutoDTO> dtoList = new();
+                var produtoList = await _context.Produtos.Where(e => e.Status).ToListAsync();
+
+                if (produtoList == null)
+                    return NotFound();
+
+                foreach (var produto in produtoList)
+                {
+                    dtoList.Add(new ProdutoDTO()
+                    {
+                        Id = produto.Id.ToString(),
                         Nome = produto.Nome,
                         Descricao = produto.Descricao,
                         Estoque = produto.Estoque,
@@ -69,7 +107,7 @@ namespace JetStore.Controllers
                     success = true,
                     data = new ProdutoDTO()
                     {
-                        Id = produto.Id,
+                        Id = produto.Id.ToString(),
                         Nome = produto.Nome,
                         Descricao = produto.Descricao,
                         Estoque = produto.Estoque,
@@ -90,7 +128,7 @@ namespace JetStore.Controllers
         {
             try
             {
-                if (id != dto.Id)
+                if (id.ToString() != dto.Id)
                     return BadRequest();
 
                 var produto = await _context.Produtos.FindAsync(id);
@@ -103,7 +141,7 @@ namespace JetStore.Controllers
 
                 _context.Entry(produto).State = EntityState.Modified;
 
-               var result = await _context.SaveChangesAsync();
+                var result = await _context.SaveChangesAsync();
 
                 return Ok(new
                 {
@@ -136,8 +174,13 @@ namespace JetStore.Controllers
             {
                 _context.Produtos.Add(produtoModel);
                 await _context.SaveChangesAsync();
+                produto.Id = produtoModel.Id.ToString();
 
-                return CreatedAtAction("GetProduto", new { id = produto.Id }, produto);
+                return Ok(new
+                {
+                    success = true,
+                    data = produto
+                });
             }
             catch (Exception ex)
             {
@@ -158,7 +201,11 @@ namespace JetStore.Controllers
                 _context.Produtos.Remove(produto);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { success = true });
+                return Ok(new
+                {
+                    success = true,
+                    data = id
+                });
             }
             catch (Exception ex)
             {
